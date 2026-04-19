@@ -3,13 +3,13 @@
 Unified Python client for prediction markets. Same conventions, one interface.
 
 <p align="center">
-  <img src="https://logo.clearbit.com/polymarket.com" width="80" alt="Polymarket"/>
+  <img src="assets/polymarket.png" width="80" alt="Polymarket"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="https://logo.clearbit.com/kalshi.com" width="80" alt="Kalshi"/>
+  <img src="assets/kalshi.png" width="80" alt="Kalshi"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="https://logo.clearbit.com/limitless.exchange" width="80" alt="Limitless"/>
+  <img src="assets/limitless.png" width="80" alt="Limitless"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="https://logo.clearbit.com/gemini.com" width="80" alt="Gemini"/>
+  <img src="assets/gemini.png" width="80" alt="Gemini"/>
 </p>
 
 -----
