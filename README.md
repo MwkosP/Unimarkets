@@ -5,11 +5,11 @@ Unified Python client for prediction markets. Same conventions, one interface.
 <p align="center">
   <img src="IMG_2216.jpeg" width="80" alt="Polymarket"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="assets/kalshi.png" width="80" alt="Kalshi"/>
+  <img src="IMG_2217.jpeg" width="80" alt="Kalshi"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="assets/limitless.png" width="80" alt="Limitless"/>
+  <img src="IMG_2218.jpeg" width="80" alt="Limitless"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="assets/gemini.png" width="80" alt="Gemini"/>
+  <img src="IMG_2219.jpeg" width="80" alt="Gemini"/>
 </p>
 
 -----
