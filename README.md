@@ -5,7 +5,7 @@ Unified Python client for prediction markets. Same conventions, one interface.
 <p align="center">
   <img src="IMG_2216.jpeg" width="80" alt="Polymarket"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="IMG_2217.jpeg" width="80" alt="Kalshi"/>
+  <img src="IMG_2217.png" width="80" alt="Kalshi"/>
   &nbsp;&nbsp;&nbsp;
   <img src="IMG_2218.jpeg" width="80" alt="Limitless"/>
   &nbsp;&nbsp;&nbsp;
