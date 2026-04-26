@@ -1,7 +1,10 @@
 # Unimarkets
 
 Unified Python client for prediction markets. Same conventions, one interface. Under the good uses: 
-[@mwkosp](https://github.com/mwkosp/Polymwk)
+[@Polymwk](https://github.com/mwkosp/Polymwk), [@Kalshimwk](https://github.com/mwkosp/kalshimwk) , 
+[@Limitlessmwk](https://github.com/mwkosp/Limitlessmwk), [@Geminimwk](https://github.com/mwkosp/Geminimwk), 
+[@Hypermwk](https://github.com/mwkosp/Hypermwk) , and more soon.
+
 
 <p align="center">
   <img src="IMG_2216.jpeg" width="80" alt="Polymarket"/>
