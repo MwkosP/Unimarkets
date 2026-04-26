@@ -1,6 +1,7 @@
 # Unimarkets
 
-Unified Python client for prediction markets. Same conventions, one interface.
+Unified Python client for prediction markets. Same conventions, one interface. Under the good uses: 
+[@mwkosp](https://github.com/mwkosp/Polymwk)
 
 <p align="center">
   <img src="IMG_2216.jpeg" width="80" alt="Polymarket"/>
