@@ -12,100 +12,56 @@ Powered by [pmxt](https://github.com/pmxt-dev/pmxt).
   &nbsp;&nbsp;&nbsp;
   <img src="artifacts/imgs/Gemini.jpeg" width="100" alt="Gemini"/>
 </p>
----
+
+## Whats Unipmx?
+Are you tired of juggling mutliple APIs for multiple Prediction markets just to view some basic stuff in a programmatic way? Unipmx unifies multiple prediction markets's Basic Functionalities into 1 dead simple python API menu. 
 
 ## Install
-
+Install uv first(if you havent already):  curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 uv add unipmx
 ```
 
-You can also clone the repo if you want to run or edit the source locally:
+Or you can also clone the repo if you want to run or edit the source locally:
 
 ```bash
-git clone <your-repo>
-cd PM
+git clone <https://github.com/MwkosP/Unipmx>
+cd Unipmx
 uv sync
 ```
 
 ## Quick start
 
-Pick a venue once — everything else stays the same:
+Pick a Client once — everything else stays the same:
 
 ```python
-from unipmx import Polymarket, Kalshi, All
-from unipmx.Display import display
+from unipmx import *
+from unipmx.Display import *
 
-client = Polymarket()   # or Kalshi() or All()
-
-display(client.fetchMarkets("btc", limit=5, sort="volume", status="active"), query="btc")
-display(client.fetchEvents("election", limit=5, sort="volume", status="active"), query="election")
+client = Polymarket()   # or Kalshi(), Gemini(), Limitless() or All() 
 ```
 
-See `[main.py](main.py)` for the full playground.
-
-### Single venue
-
-```python
-from unipmx import Polymarket
-from unipmx.Display import display
-
-client = Polymarket()
-
-markets = client.fetchMarkets("bitcoin", limit=10, status="active")
-event   = client.fetchEvent("31552")
-book    = client.fetchMarketOrderBook(markets[0].market_id)
-
-display(markets, query="bitcoin")
-display(client.fetchMarketActivity(markets[0].market_id, limit=20))
-```
-
-### Cross-exchange
-
-```python
-from unipmx import All
-from unipmx.Display import display
-
-client = All()   # all venues — or All(("Polymarket", "Kalshi"))
-
-display(client.fetchMarkets("bitcoin", limit=20, sort="volume"))
-display(client.fetchEvents("iran", limit=5, sort="volume"))
-display(client.fetchMatchedMarkets("btc", limit=10))
-display(client.fetchArbitrage("btc", limit=10))
-```
-
-## Platforms
-
-
-| Client         | Platform                                | Auth                                |
-| -------------- | --------------------------------------- | ----------------------------------- |
-| `Polymarket()` | [Polymarket](https://polymarket.com)    | None / wallet                       |
-| `Kalshi()`     | [Kalshi](https://kalshi.com)            | API key + private key (order books) |
-| `Limitless()`  | [Limitless](https://limitless.exchange) | API key                             |
-| `Myriad()`     | Myriad                                  | —                                   |
-| `Probable()`   | Probable                                | —                                   |
-| `Smarkets()`   | Smarkets                                | —                                   |
-| `All()`        | Every venue above                       | Per-venue                           |
+See `main.py` for the full playground.
 
 
 ## API surface
 
 ### Events
 
-Markets, events, series, order books, filters, and market detail — all camelCase on the client:
+Markets, events, series, order books, filters, and market detail — all camelCase Functions easy to access based on your selected Client(Polymarket,Kalshi,Gemini,Limitless or All):
 
 ```python
-client.fetchMarkets(query, limit=10, sort="volume", status="active")
-client.fetchEvents(query, limit=10)
-client.fetchEvent(event_id)
-client.fetchEventComments(event_id, limit=20)      # Polymarket
+from unipmx.Events import *
+
+
+client.fetchEvents(query="Bitcoin", limit=10)     #Bitcoin Events
+client.fetchMarkets(query, limit=10, sort="volume", status="active")   #Bitcoin Markets
+client.fetchSeries(limit=10)
+
+client.fetchEventComments(event_id, limit=20)      # Event's Comments that you cna also view on UI
 client.fetchRelatedEvents(event_id, limit=10)
 
-client.fetchSeries(limit=10)
-client.fetchSeriesMarkets("nfl", limit=10)           # Polymarket: "nfl" / "1" — Kalshi: "FED"
-client.fetchSeriesEvents("nfl", limit=10)
-
-client.fetchMarketOrderBook(market_id)
+client.fetchMarketOrderBook(market_id)     #Orderbook Rest API snapshot for a specific Market
 client.fetchMarketActivity(market_id, limit=20)
 client.fetchMarketStats(market_id)
 client.fetchMarketGraph(market_id, resolution="1d", limit=48)
@@ -136,8 +92,42 @@ display(client.fetchMarkets("btc", limit=5), query="btc")
 display(client.fetchEventComments("31552", limit=20))
 display(client.fetchMarketStats(market_id))
 ```
+Example: <br/> <br/>
+<img src="artifacts/imgs/Tui.png" width="700" alt="Tui"/> <br/>
 
-Event comments render as a chat thread (replies, `@mentions`, reactions).
+
+
+### Cross-exchange
+
+```python
+from unipmx import All
+from unipmx.Display import display
+from unipmx.Events import *
+
+
+client = All()   # all venues — or All(("Polymarket", "Kalshi"))
+
+display(client.fetchMarkets("bitcoin", limit=20, sort="volume"))
+display(client.fetchEvents("iran", limit=5, sort="volume"))
+display(client.fetchMatchedMarkets("btc", limit=10))
+display(client.fetchArbitrage("btc", limit=10))
+```
+
+## Platforms
+
+
+| Client         | Platform                                | Auth                                |
+| -------------- | --------------------------------------- | ----------------------------------- |
+| `Polymarket()` | [Polymarket](https://polymarket.com)    | None / wallet                       |
+| `Kalshi()`     | [Kalshi](https://kalshi.com)            | API key + private key (order books) |
+| `Limitless()`  | [Limitless](https://limitless.exchange) | API key                             |
+| `Myriad()`     | Myriad                                  | —                                   |
+| `Probable()`   | Probable                                | —                                   |
+| `Smarkets()`   | Smarkets                                | —                                   |
+| `All()`        | Every venue above                       | Per-venue                           |
+
+
+
 
 ## Venue notes
 
@@ -175,3 +165,11 @@ export PMXT_API_KEY=your_key
 ## Python
 
 3.12+
+
+## Improvements
+
+Note that it needs a lot of work and it will be improved and have access to many Prediction markets. it is an early version to test it out and also it is NOT for HFT , it is mainly for Longer term - Research oriented Studies / Backtesting Purposes!
+
+## Contributions
+
+Feel free to contribute i love Prediction markets and Coding!

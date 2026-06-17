@@ -2,11 +2,11 @@ from unipmx.Display import display
 from unipmx import All, Kalshi, Polymarket
 
 # Switch venue here only — Polymarket() | Kalshi() | All()
-client = Kalshi()
+client = Polymarket()
 
 
 # ── Events ──────────────────────────────────────────────────────────────
-display(client.fetchEvents("election", limit=5, sort="volume", status="active"), query="election")
+display(client.fetchEvents("election", limit=1, sort="volume", status="active"), query="election")
 #display(client.fetchEvents(limit=5, status="active"))
 #display(client.fetchEvent("31552"))
 #display(client.fetchEventComments("31552", limit=20))
