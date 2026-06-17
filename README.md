@@ -4,13 +4,13 @@ Unified Python toolkit for prediction markets. One client API, multiple venues, 
 Powered by [pmxt](https://github.com/pmxt-dev/pmxt).
 
 <p align="center">
-  <img src="artifacts/imgs/Polymarket.jpeg" width="80" alt="Polymarket"/>
+  <img src="artifacts/imgs/Polymarket.jpeg" width="100" alt="Polymarket"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="artifacts/imgs/Kalshi.png" width="80" alt="Kalshi"/>
+  <img src="artifacts/imgs/Kalshi.png" width="100" alt="Kalshi"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="artifacts/imgs/Limitless.jpeg" width="80" alt="Limitless"/>
+  <img src="artifacts/imgs/Limitless.jpeg" width="100" alt="Limitless"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="artifacts/imgs/Gemini.jpeg" width="80" alt="Gemini"/>
+  <img src="artifacts/imgs/Gemini.jpeg" width="100" alt="Gemini"/>
 </p>
 ---
 
