@@ -25,7 +25,7 @@ uv add unipmx
 Or you can also clone the repo if you want to run or edit the source locally:
 
 ```bash
-git clone <https://github.com/MwkosP/Unipmx>
+git clone https://github.com/MwkosP/Unipmx
 cd Unipmx
 uv sync
 ```
