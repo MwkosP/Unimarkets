@@ -1,4 +1,4 @@
-# unipmx
+# Unipmx
 
 Unified Python toolkit for prediction markets. One client API, multiple venues, terminal display built in.  
 Powered by [pmxt](https://github.com/pmxt-dev/pmxt).

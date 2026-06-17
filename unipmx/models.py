@@ -208,6 +208,79 @@ class PricePoint:
 
 
 @dataclass
+class HistoricalValuePoint:
+    timestamp: int | None
+    value: float | None
+    kind: str
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class PlatformStats:
+    venue: str
+    markets_sampled: int
+    active_markets: int
+    closed_markets: int
+    events_sampled: int
+    volume: float | None
+    liquidity: float | None
+    open_interest: float | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class PlatformFee:
+    venue: str
+    market_id: str | None
+    title: str | None
+    fee: str | None
+    maker_base_fee: float | None = None
+    taker_base_fee: float | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class PlatformCategory:
+    id: str | None
+    label: str
+    slug: str | None = None
+    count: int | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class PlatformStatus:
+    venue: str
+    ok: bool
+    components: dict[str, bool]
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class PlatformVenue:
+    name: str
+    supported: bool = True
+    user_tracking: bool = False
+    source: str = "unipmx"
+    raw: dict | None = None
+
+
+@dataclass
+class FeedError:
+    function: str
+    message: str
+    exchange: str
+    hint: str | None = None
+    source: str = "pmxt"
+    raw: dict | None = None
+
+
+@dataclass
 class MarketPosition:
     address: str
     outcome: str | None
@@ -216,3 +289,176 @@ class MarketPosition:
     current_value: float | None
     source: str
     raw: dict
+
+
+@dataclass
+class UserProfile:
+    address: str
+    name: str | None = None
+    pseudonym: str | None = None
+    bio: str | None = None
+    profile_image: str | None = None
+    x_username: str | None = None
+    verified: bool | None = None
+    joined_at: str | None = None
+    views: int | None = None
+    positions_value: float | None = None
+    biggest_win: float | None = None
+    predictions: int | None = None
+    profit_loss: float | None = None
+    profit_loss_percent: float | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserWalletAge:
+    user_address: str
+    joined_at: str | None
+    days: int | None
+    years: float | None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserWalletConnection:
+    user_address: str
+    connection_id: str | None
+    creator: bool | None = None
+    mod: bool | None = None
+    community_mod: bool | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserPosition:
+    user_address: str
+    market_id: str | None
+    title: str | None
+    outcome: str | None
+    size: float
+    avg_price: float | None
+    current_price: float | None
+    current_value: float | None
+    cash_pnl: float | None
+    percent_pnl: float | None
+    realized_pnl: float | None
+    status: str | None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserTradeRecord:
+    user_address: str
+    market_id: str | None
+    title: str | None
+    outcome: str | None
+    side: str | None
+    price: float | None
+    size: float | None
+    timestamp: int | None
+    transaction_hash: str | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserActivityItem:
+    user_address: str
+    activity_type: str | None
+    market_id: str | None
+    title: str | None
+    outcome: str | None
+    side: str | None
+    price: float | None
+    size: float | None
+    timestamp: int | None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserPnL:
+    user_address: str
+    window: str
+    realized: float | None
+    unrealized: float | None
+    total: float | None
+    percent: float | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserRank:
+    user_address: str
+    rank: int | None
+    window: str
+    by: str
+    value: float | None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserStyle:
+    user_address: str
+    trader_type: str
+    activity_style: str
+    sizing_style: str
+    directional_style: str
+    flow_style: str
+    recent_trades: int
+    open_markets: int
+    open_position_value: float
+    average_position_value: float
+    biggest_position_value: float
+    profitable_positions: int
+    losing_positions: int
+    total_pnl: float | None
+    pnl_percent: float | None
+    rank: int | None
+    preferred_keywords: list[str]
+    data_available: bool = True
+    errors: list[str] | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserLeaderboardEntry:
+    rank: int | None
+    user_address: str | None
+    username: str | None
+    volume: float | None
+    pnl: float | None
+    profile_image: str | None = None
+    x_username: str | None = None
+    verified: bool | None = None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserMarket:
+    user_address: str
+    market_id: str | None
+    title: str | None
+    outcomes: list[str]
+    size: float
+    current_value: float | None
+    cash_pnl: float | None
+    status: str | None
+    source: str = "Polymarket"
+    raw: dict | None = None
+
+
+@dataclass
+class UserPortfolioValue:
+    user_address: str
+    value: float | None
+    source: str = "Polymarket"
+    raw: dict | None = None

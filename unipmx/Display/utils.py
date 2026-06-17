@@ -33,15 +33,34 @@ from pmxt.models import (
 from unipmx.models import (
     Comment,
     EventResult,
+    FeedError,
     Holder,
+    HistoricalValuePoint,
     MarketPosition,
     MarketRules,
     MarketStats,
     MarketResult,
+    PlatformCategory,
+    PlatformFee,
+    PlatformStats,
+    PlatformStatus,
+    PlatformVenue,
     PricePoint,
     Resolution,
     SearchResults,
     SeriesResult,
+    UserActivityItem,
+    UserLeaderboardEntry,
+    UserMarket,
+    UserPnL,
+    UserPortfolioValue,
+    UserPosition,
+    UserProfile,
+    UserRank,
+    UserStyle,
+    UserTradeRecord,
+    UserWalletAge,
+    UserWalletConnection,
 )
 
 console = Console()
@@ -582,6 +601,25 @@ def render_ohlcv(candles: list[PriceCandle], *, title: str = "OHLCV") -> Panel:
 
 
 def render_user_activity(activity, *, title: str = "User Activity") -> Panel:
+    if isinstance(activity, list):
+        table = make_table()
+        table.add_column("Time", no_wrap=True)
+        table.add_column("Type", no_wrap=True)
+        table.add_column("Side", no_wrap=True)
+        table.add_column("Price", justify="right", no_wrap=True)
+        table.add_column("Size", justify="right", no_wrap=True)
+        table.add_column("Market", ratio=1, no_wrap=True, overflow="ellipsis")
+        for item in activity[:50]:
+            table.add_row(
+                fmt_ts(item.timestamp or 0) if item.timestamp else "—",
+                item.activity_type or "—",
+                item.side or "—",
+                fmt_pct(item.price) if item.price is not None else "—",
+                f"{item.size:.2f}" if item.size is not None else "—",
+                truncate(item.title or item.market_id or "", 40),
+            )
+        return build_panel(title, table if activity else subtitle("[italic]No activity.[/italic]"), border_style="bright_magenta")
+
     addr = activity.address
     parts: list = [subtitle(f"[dim]Wallet:[/dim] [cyan]{addr}[/cyan]")]
     parts.append(subtitle("[bold]Balances[/bold]"))
@@ -600,6 +638,210 @@ def render_user_activity(activity, *, title: str = "User Activity") -> Panel:
     else:
         parts.append(subtitle("[italic]No trades.[/italic]"))
     return build_panel(title, *parts, border_style="bright_magenta")
+
+
+def render_user_profile(profile: UserProfile, *, title: str = "User Profile") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Field", style="dim")
+    table.add_column("Value")
+    table.add_row("Address", profile.address)
+    table.add_row("Name", profile.name or "—")
+    table.add_row("Pseudonym", profile.pseudonym or "—")
+    table.add_row("Joined", profile.joined_at or "—")
+    table.add_row("Views", str(profile.views) if profile.views is not None else "—")
+    table.add_row(
+        "Positions Value",
+        f"{profile.positions_value:,.2f}" if profile.positions_value is not None else "—",
+    )
+    table.add_row(
+        "Biggest Win",
+        f"{profile.biggest_win:,.2f}" if profile.biggest_win is not None else "—",
+    )
+    table.add_row("Predictions", str(profile.predictions) if profile.predictions is not None else "—")
+    table.add_row(
+        "Profit/Loss",
+        f"{profile.profit_loss:+,.2f}" if profile.profit_loss is not None else "—",
+    )
+    table.add_row("X", profile.x_username or "—")
+    table.add_row("Verified", str(profile.verified) if profile.verified is not None else "—")
+    if profile.bio:
+        table.add_row("Bio", profile.bio)
+    return build_panel(title, table, border_style="bright_magenta")
+
+
+def render_user_wallet_age(age: UserWalletAge, *, title: str = "Wallet Age") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Field", style="dim")
+    table.add_column("Value", justify="right")
+    table.add_row("Address", age.user_address)
+    table.add_row("Joined", age.joined_at or "—")
+    table.add_row("Days", f"{age.days:,}" if age.days is not None else "—")
+    table.add_row("Years", f"{age.years:.2f}" if age.years is not None else "—")
+    return build_panel(title, table, border_style="bright_magenta")
+
+
+def render_user_wallet_connections(
+    connections: list[UserWalletConnection],
+    *,
+    title: str = "Wallet Connections",
+) -> Panel:
+    if not connections:
+        return build_panel(title, subtitle("[italic]No wallet connections.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("ID / Address", ratio=1, no_wrap=True, overflow="ellipsis")
+    table.add_column("Creator", no_wrap=True)
+    table.add_column("Mod", no_wrap=True)
+    table.add_column("Community Mod", no_wrap=True)
+    for c in connections[:50]:
+        table.add_row(
+            c.connection_id or "—",
+            str(c.creator) if c.creator is not None else "—",
+            str(c.mod) if c.mod is not None else "—",
+            str(c.community_mod) if c.community_mod is not None else "—",
+        )
+    return build_panel(title, table, border_style="bright_magenta")
+
+
+def render_user_positions(positions: list[UserPosition], *, title: str = "User Positions") -> Panel:
+    if not positions:
+        return build_panel(title, subtitle("[italic]No positions.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("Market", ratio=1, no_wrap=True, overflow="ellipsis")
+    table.add_column("Outcome", no_wrap=True)
+    table.add_column("Size", justify="right", no_wrap=True)
+    table.add_column("Value", justify="right", no_wrap=True)
+    table.add_column("PnL", justify="right", no_wrap=True)
+    for p in positions[:50]:
+        pnl = f"{p.cash_pnl:+.2f}" if p.cash_pnl is not None else "—"
+        table.add_row(
+            truncate(p.title or p.market_id or "", 45),
+            p.outcome or "—",
+            f"{p.size:.2f}",
+            f"{p.current_value:.2f}" if p.current_value is not None else "—",
+            pnl,
+        )
+    return build_panel(title, table, border_style="bright_magenta")
+
+
+def render_user_trades(trades: list[UserTradeRecord], *, title: str = "User Trades") -> Panel:
+    if not trades:
+        return build_panel(title, subtitle("[italic]No trades.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("Time", no_wrap=True)
+    table.add_column("Side", no_wrap=True)
+    table.add_column("Outcome", no_wrap=True)
+    table.add_column("Price", justify="right", no_wrap=True)
+    table.add_column("Size", justify="right", no_wrap=True)
+    table.add_column("Market", ratio=1, no_wrap=True, overflow="ellipsis")
+    for t in trades[:50]:
+        table.add_row(
+            fmt_ts(t.timestamp or 0) if t.timestamp else "—",
+            t.side or "—",
+            t.outcome or "—",
+            fmt_pct(t.price) if t.price is not None else "—",
+            f"{t.size:.2f}" if t.size is not None else "—",
+            truncate(t.title or t.market_id or "", 40),
+        )
+    return build_panel(title, table, border_style="bright_green")
+
+
+def render_user_leaderboard(entries: list[UserLeaderboardEntry], *, title: str = "Leaderboard") -> Panel:
+    if not entries:
+        return build_panel(title, subtitle("[italic]No leaderboard data.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("#", justify="right", no_wrap=True)
+    table.add_column("User", ratio=1, no_wrap=True, overflow="ellipsis")
+    table.add_column("PnL", justify="right", no_wrap=True)
+    table.add_column("Volume", justify="right", no_wrap=True)
+    for e in entries[:50]:
+        table.add_row(
+            str(e.rank or "—"),
+            e.username or e.user_address or "—",
+            f"{e.pnl:,.2f}" if e.pnl is not None else "—",
+            f"{e.volume:,.2f}" if e.volume is not None else "—",
+        )
+    return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_user_markets(markets: list[UserMarket], *, title: str = "User Markets") -> Panel:
+    if not markets:
+        return build_panel(title, subtitle("[italic]No markets.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("Market", ratio=1, no_wrap=True, overflow="ellipsis")
+    table.add_column("Outcomes", no_wrap=True)
+    table.add_column("Size", justify="right", no_wrap=True)
+    table.add_column("Value", justify="right", no_wrap=True)
+    table.add_column("PnL", justify="right", no_wrap=True)
+    for m in markets[:50]:
+        table.add_row(
+            truncate(m.title or m.market_id or "", 45),
+            ", ".join(m.outcomes) or "—",
+            f"{m.size:.2f}",
+            f"{m.current_value:.2f}" if m.current_value is not None else "—",
+            f"{m.cash_pnl:+.2f}" if m.cash_pnl is not None else "—",
+        )
+    return build_panel(title, table, border_style="bright_magenta")
+
+
+def render_user_pnl(pnl: UserPnL, *, title: str = "User PnL") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Field", style="dim")
+    table.add_column("Value", justify="right")
+    table.add_row("Window", pnl.window)
+    table.add_row("Realized", f"{pnl.realized:+.2f}" if pnl.realized is not None else "—")
+    table.add_row("Unrealized", f"{pnl.unrealized:+.2f}" if pnl.unrealized is not None else "—")
+    table.add_row("Total", f"{pnl.total:+.2f}" if pnl.total is not None else "—")
+    table.add_row("Percent", fmt_pct(pnl.percent) if pnl.percent is not None else "—")
+    return build_panel(title, table, border_style="bright_magenta")
+
+
+def render_user_rank(rank: UserRank, *, title: str = "User Rank") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Field", style="dim")
+    table.add_column("Value", justify="right")
+    table.add_row("Window", rank.window)
+    table.add_row("By", rank.by)
+    table.add_row("Rank", str(rank.rank) if rank.rank is not None else "—")
+    table.add_row("Value", f"{rank.value:,.2f}" if rank.value is not None else "—")
+    return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_user_style(style: UserStyle, *, title: str = "User Style") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Signal", style="dim")
+    table.add_column("Value")
+
+    if not style.data_available:
+        table.add_row("Status", "No live user data available")
+        if style.errors:
+            table.add_row("Reason", style.errors[0])
+        return build_panel(title, table, border_style="yellow")
+
+    table.add_row("Trader Type", style.trader_type)
+    table.add_row("Trade Flow", style.flow_style)
+    table.add_row("Recent Trades", str(style.recent_trades))
+    table.add_row("Open Markets", str(style.open_markets))
+    table.add_row("Open Position Value", f"{style.open_position_value:,.2f}")
+    table.add_row("Average Position", f"{style.average_position_value:,.2f}")
+    table.add_row("Biggest Position", f"{style.biggest_position_value:,.2f}")
+    table.add_row(
+        "Profitable / Losing",
+        f"{style.profitable_positions} / {style.losing_positions}",
+    )
+    table.add_row("Total PnL", f"{style.total_pnl:+,.2f}" if style.total_pnl is not None else "—")
+    table.add_row("PnL %", fmt_pct(style.pnl_percent) if style.pnl_percent is not None else "—")
+    table.add_row("Rank", str(style.rank) if style.rank is not None else "—")
+    table.add_row("Preferred Themes", ", ".join(style.preferred_keywords) or "—")
+    return build_panel(title, table, border_style="bright_blue")
+
+
+def render_user_portfolio_value(value: UserPortfolioValue, *, title: str = "Portfolio Value") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Field", style="dim")
+    table.add_column("Value", justify="right")
+    table.add_row("Address", value.user_address)
+    table.add_row("Value", f"{value.value:,.2f}" if value.value is not None else "—")
+    return build_panel(title, table, border_style="bright_blue")
 
 
 def render_address_snapshot(snap: SubscribedAddressSnapshot, *, title: str = "Wallet Feed") -> Panel:
@@ -802,6 +1044,102 @@ def render_price_points(points: list[PricePoint], *, title: str = "Price History
         ts = fmt_ts(p.timestamp) if p.timestamp else "—"
         table.add_row(ts, fmt_pct(p.yes_price), fmt_pct(p.no_price))
     return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_historical_value_points(
+    points: list[HistoricalValuePoint],
+    *,
+    title: str = "Historical Values",
+) -> Panel:
+    if not points:
+        return build_panel(title, subtitle("[italic]No historical data.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("Time", no_wrap=True)
+    table.add_column("Kind", no_wrap=True)
+    table.add_column("Value", justify="right", no_wrap=True)
+    for p in points[:80]:
+        ts = fmt_ts(p.timestamp) if p.timestamp else "—"
+        table.add_row(ts, p.kind, f"{p.value:,.4f}" if p.value is not None else "—")
+    return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_platform_stats(stats: PlatformStats, *, title: str = "Platform Stats") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Field", style="dim")
+    table.add_column("Value", justify="right")
+    table.add_row("Venue", stats.venue)
+    table.add_row("Markets Sampled", f"{stats.markets_sampled:,}")
+    table.add_row("Active Markets", f"{stats.active_markets:,}")
+    table.add_row("Closed Markets", f"{stats.closed_markets:,}")
+    table.add_row("Events Sampled", f"{stats.events_sampled:,}")
+    table.add_row("Volume", f"{stats.volume:,.2f}" if stats.volume is not None else "—")
+    table.add_row("Liquidity", f"{stats.liquidity:,.2f}" if stats.liquidity is not None else "—")
+    table.add_row("Open Interest", f"{stats.open_interest:,.2f}" if stats.open_interest is not None else "—")
+    return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_platform_fees(fees: list[PlatformFee], *, title: str = "Platform Fees") -> Panel:
+    if not fees:
+        return build_panel(title, subtitle("[italic]No fee data.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("Market", ratio=1, no_wrap=True, overflow="ellipsis")
+    table.add_column("Fee", no_wrap=True)
+    table.add_column("Maker", justify="right", no_wrap=True)
+    table.add_column("Taker", justify="right", no_wrap=True)
+    for fee in fees[:50]:
+        table.add_row(
+            truncate(fee.title or fee.market_id or "", 45),
+            fee.fee or "—",
+            f"{fee.maker_base_fee:.4f}" if fee.maker_base_fee is not None else "—",
+            f"{fee.taker_base_fee:.4f}" if fee.taker_base_fee is not None else "—",
+        )
+    return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_platform_categories(categories: list[PlatformCategory], *, title: str = "Platform Categories") -> Panel:
+    if not categories:
+        return build_panel(title, subtitle("[italic]No categories.[/italic]"), border_style="yellow")
+    table = make_table()
+    table.add_column("ID", no_wrap=True)
+    table.add_column("Category", ratio=1, no_wrap=True, overflow="ellipsis")
+    table.add_column("Slug", no_wrap=True)
+    table.add_column("Count", justify="right", no_wrap=True)
+    for cat in categories[:80]:
+        table.add_row(cat.id or "—", cat.label, cat.slug or "—", str(cat.count) if cat.count is not None else "—")
+    return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_platform_status(status: PlatformStatus, *, title: str = "Platform Status") -> Panel:
+    table = make_table()
+    table.add_column("Component", ratio=1)
+    table.add_column("OK", justify="right")
+    for name, ok in status.components.items():
+        table.add_row(name, "yes" if ok else "no")
+    if not status.components:
+        table.add_row(status.venue, "yes" if status.ok else "no")
+    return build_panel(title, subtitle(f"[bold]{status.venue}[/bold]  [dim]· overall: {status.ok}[/dim]"), table, border_style="bright_cyan")
+
+
+def render_platform_venues(venues: list[PlatformVenue], *, title: str = "Platform Venues") -> Panel:
+    table = make_table()
+    table.add_column("Venue", ratio=1)
+    table.add_column("Supported", justify="right")
+    table.add_column("User Tracking", justify="right")
+    for venue in venues:
+        table.add_row(venue.name, "yes" if venue.supported else "no", "yes" if venue.user_tracking else "no")
+    return build_panel(title, table, border_style="bright_cyan")
+
+
+def render_feed_error(error: FeedError, *, title: str = "Feed Error") -> Panel:
+    table = make_table(show_header=False)
+    table.add_column("Field", style="dim")
+    table.add_column("Value")
+    table.add_row("Function", error.function)
+    table.add_row("Exchange", error.exchange)
+    table.add_row("Message", error.message)
+    if error.hint:
+        table.add_row("Hint", error.hint)
+    return build_panel(title, table, border_style="yellow")
 
 
 def render_market_positions(positions: list[MarketPosition], *, title: str = "Market Positions") -> Panel:

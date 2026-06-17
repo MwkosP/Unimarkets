@@ -1,19 +1,27 @@
-"""Public Users API — wallet trade history."""
-
-from pmxt.models import UserTrade
+"""Public Users API — user trade history."""
 
 from unipmx.Display.spinner import spun
-from unipmx.client import getClient
 from unipmx.config import DEFAULT_EXCHANGE
+from unipmx.models import UserTradeRecord
+
+from .polymarket import get_json, normalize_trade, polymarket_supported, sort_trades
 
 
 @spun()
 def fetchUserTrades(
     address: str,
+    market_id: str | None = None,
+    sort: str | None = None,
+    limit: int = 20,
     *,
     exchange: str = DEFAULT_EXCHANGE,
-    limit: int | None = None,
-) -> list[UserTrade]:
-    client = getClient(exchange, wallet_address=address)
-    kwargs = {"limit": limit} if limit else {}
-    return client.fetch_my_trades(**kwargs)
+) -> list[UserTradeRecord]:
+    if not polymarket_supported(exchange):
+        return []
+
+    params = {"user": address, "market": market_id, "limit": limit}
+    raw = get_json("https://data-api.polymarket.com", "/trades", params)
+    rows = raw if isinstance(raw, list) else []
+    trades = [normalize_trade(address, row) for row in rows]
+    trades = sort_trades(trades, sort)
+    return trades[:limit]

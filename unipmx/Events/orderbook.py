@@ -45,7 +45,7 @@ def getOutcomeId(
     Use active_only=True (default) to skip resolved outcomes (price 0% or 100%)
     that have no live order book.
     """
-    markets = fetchMarkets(query, limit=max(market_index + 1, DEFAULT_LIMIT), exchange=exchange)
+    markets = fetchMarkets(query=query, limit=max(market_index + 1, DEFAULT_LIMIT), exchange=exchange)
     if not markets:
         raise ValueError(f"No market found for query '{query}'")
 
@@ -72,7 +72,7 @@ def fetchOrderBookByQuery(
 ) -> tuple[UnifiedMarket, MarketOutcome, OrderBook] | None:
     """Find first market/outcome with a live order book for query."""
     with loading(f"Finding order book for '{query}'…") as status:
-        markets = fetchMarkets(query, limit=DEFAULT_LIMIT, exchange=exchange)
+        markets = fetchMarkets(query=query, limit=DEFAULT_LIMIT, exchange=exchange)
         if not markets:
             return None
 

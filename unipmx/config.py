@@ -1,7 +1,13 @@
 """Exchange registry and defaults."""
 
-import pmxt
+import os
 from typing import Literal
+
+_node_options = os.environ.get("NODE_OPTIONS", "")
+if "--use-system-ca" not in _node_options:
+    os.environ["NODE_OPTIONS"] = f"{_node_options} --use-system-ca".strip()
+
+import pmxt
 
 DEFAULT_EXCHANGE = "Polymarket"
 

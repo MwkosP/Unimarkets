@@ -22,6 +22,8 @@ from unipmx.models import (
     Comment,
     EventList,
     EventResult,
+    FeedError,
+    HistoricalValuePoint,
     Holder,
     MarketPosition,
     MarketResult,
@@ -30,11 +32,28 @@ from unipmx.models import (
     OhlcvCandles,
     OhlcvFrame,
     OhlcvSeries,
+    PlatformCategory,
+    PlatformFee,
+    PlatformStats,
+    PlatformStatus,
+    PlatformVenue,
     PricePoint,
     Resolution,
     SearchResults,
     SeriesList,
     SeriesResult,
+    UserActivityItem,
+    UserLeaderboardEntry,
+    UserMarket,
+    UserPnL,
+    UserPortfolioValue,
+    UserPosition,
+    UserProfile,
+    UserRank,
+    UserStyle,
+    UserTradeRecord,
+    UserWalletAge,
+    UserWalletConnection,
 )
 from unipmx.Plots import plotChart
 
@@ -44,8 +63,10 @@ from .utils import (
     render_comments,
     render_compare,
     render_events,
+    render_feed_error,
     render_generic,
     render_holders,
+    render_historical_value_points,
     render_market_positions,
     render_market_rules,
     render_market_stats,
@@ -56,6 +77,11 @@ from .utils import (
     render_orders,
     render_positions,
     render_price_points,
+    render_platform_categories,
+    render_platform_fees,
+    render_platform_stats,
+    render_platform_status,
+    render_platform_venues,
     render_resolution,
     render_search_events,
     render_search_results,
@@ -63,6 +89,17 @@ from .utils import (
     render_series,
     render_trades,
     render_user_activity,
+    render_user_leaderboard,
+    render_user_markets,
+    render_user_pnl,
+    render_user_portfolio_value,
+    render_user_positions,
+    render_user_profile,
+    render_user_rank,
+    render_user_style,
+    render_user_trades,
+    render_user_wallet_age,
+    render_user_wallet_connections,
     show_panel,
 )
 
@@ -128,8 +165,24 @@ def _panel_for(
             return render_search_events(data.items, query=data.query, sort=data.sort, status=data.status)
         return render_search_series(data.items, query=data.query, sort=data.sort)
 
-    if type(data).__name__ == "UserActivity":
-        return render_user_activity(data, title=title or "User Activity")
+    if isinstance(data, UserProfile):
+        return render_user_profile(data, title=title or "User Profile")
+    if isinstance(data, UserWalletAge):
+        return render_user_wallet_age(data, title=title or "Wallet Age")
+    if isinstance(data, UserPnL):
+        return render_user_pnl(data, title=title or "User PnL")
+    if isinstance(data, UserRank):
+        return render_user_rank(data, title=title or "User Rank")
+    if isinstance(data, UserStyle):
+        return render_user_style(data, title=title or "User Style")
+    if isinstance(data, UserPortfolioValue):
+        return render_user_portfolio_value(data, title=title or "Portfolio Value")
+    if isinstance(data, PlatformStats):
+        return render_platform_stats(data, title=title or "Platform Stats")
+    if isinstance(data, PlatformStatus):
+        return render_platform_status(data, title=title or "Platform Status")
+    if isinstance(data, FeedError):
+        return render_feed_error(data, title=title or "Feed Error")
 
     if isinstance(data, SubscribedAddressSnapshot):
         return render_address_snapshot(data, title=title or "Wallet Feed")
@@ -234,7 +287,27 @@ def _panel_for(
         return render_holders(data, title=title or "Top Holders")
     if isinstance(first, PricePoint):
         return render_price_points(data, title=title or "Price History")
+    if isinstance(first, HistoricalValuePoint):
+        return render_historical_value_points(data, title=title or "Historical Values")
     if isinstance(first, MarketPosition):
         return render_market_positions(data, title=title or "Market Positions")
+    if isinstance(first, UserPosition):
+        return render_user_positions(data, title=title or "User Positions")
+    if isinstance(first, UserTradeRecord):
+        return render_user_trades(data, title=title or "User Trades")
+    if isinstance(first, UserActivityItem):
+        return render_user_activity(data, title=title or "User Activity")
+    if isinstance(first, UserLeaderboardEntry):
+        return render_user_leaderboard(data, title=title or "Leaderboard")
+    if isinstance(first, UserMarket):
+        return render_user_markets(data, title=title or "User Markets")
+    if isinstance(first, UserWalletConnection):
+        return render_user_wallet_connections(data, title=title or "Wallet Connections")
+    if isinstance(first, PlatformFee):
+        return render_platform_fees(data, title=title or "Platform Fees")
+    if isinstance(first, PlatformCategory):
+        return render_platform_categories(data, title=title or "Platform Categories")
+    if isinstance(first, PlatformVenue):
+        return render_platform_venues(data, title=title or "Platform Venues")
 
     return render_generic(data, title=title or "Data")

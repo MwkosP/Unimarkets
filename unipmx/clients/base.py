@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 from unipmx.client import getClient
 from unipmx.config import DEFAULT_LIMIT, ResolutionKey, SortKey, StatusKey
@@ -21,6 +21,54 @@ from unipmx.Events.market_detail import (
 from unipmx.Events.markets import fetchMarket, fetchMarkets, fetchMarketsPaginated, loadMarkets
 from unipmx.Events.orderbook import fetchOrderBook, fetchOrderBookByQuery, fetchOrderBooks, getOutcomeId
 from unipmx.Events.series import fetchSeries, fetchSeriesEvents, fetchSeriesMarkets
+from unipmx.Feed import (
+    firehose,
+    unwatchAddress,
+    unwatchOrderBook,
+    watchAddress,
+    watchAllOrderBooks,
+    watchOrderBook,
+    watchOrderBooks,
+    watchPrices,
+    watchTrades,
+    watchUserPositions,
+    watchUserTransactions,
+)
+from unipmx.Historical import (
+    fetchHistorical,
+    fetchHistoricalEventPrice,
+    fetchHistoricalMarketOpenInterest,
+    fetchHistoricalMarketPrice,
+    fetchHistoricalMarketPriceOhlcv,
+    fetchHistoricalMarketTrades,
+    fetchHistoricalMarketVolume,
+    fetchHistoricalUserPnl,
+    fetchHistoricalUserTradeHistory,
+    fetchHistoricalUserWalletConnections,
+)
+from unipmx.Platform import (
+    fetchPlatformCategories,
+    fetchPlatformFees,
+    fetchPlatformStats,
+    fetchPlatformStatus,
+    fetchPlatformVenues,
+)
+from unipmx.Users import (
+    fetchUserActivity,
+    fetchUserFollowers,
+    fetchUserFollowing,
+    fetchUserMarkets,
+    fetchUserPnL,
+    fetchUserPortfolioValue,
+    fetchUserPositions,
+    fetchUserProfile,
+    fetchUserRank,
+    fetchUserTrades,
+    fetchUserWalletAge,
+    fetchUserWalletConnections,
+    fetchUsersLeaderboard,
+    findUserStyle,
+)
 
 
 class ExchangeClient:
@@ -34,15 +82,23 @@ class ExchangeClient:
         wallet_address: str | None = None,
         api_key: str | None = None,
     ) -> None:
-        self._client = getClient(
-            self.exchange,
-            wallet_address=wallet_address,
-            api_key=api_key,
-        )
+        self._wallet_address = wallet_address
+        self._api_key = api_key
+        self._client = None
 
     @property
     def name(self) -> str:
         return self.exchange
+
+    @property
+    def client(self):
+        if self._client is None:
+            self._client = getClient(
+                self.exchange,
+                wallet_address=self._wallet_address,
+                api_key=self._api_key,
+            )
+        return self._client
 
     # ── Events ────────────────────────────────────────────────────────────
 
@@ -287,3 +343,232 @@ class ExchangeClient:
         sort: SortKey | None = None,
     ):
         return filterEvents(events, criteria, exchange=self.exchange, sort=sort)
+
+    # ── Users ─────────────────────────────────────────────────────────────
+
+    def fetchUserProfile(self, user_address: str):
+        return fetchUserProfile(user_address, exchange=self.exchange)
+
+    def fetchUserWalletAge(self, user_address: str):
+        return fetchUserWalletAge(user_address, exchange=self.exchange)
+
+    def fetchUserWalletConnections(self, user_address: str, limit: int = 20):
+        return fetchUserWalletConnections(user_address, limit=limit, exchange=self.exchange)
+
+    def fetchUserPositions(
+        self,
+        user_address: str,
+        status: str = "open",
+        sort: str | None = None,
+        limit: int = 20,
+    ):
+        return fetchUserPositions(
+            user_address,
+            status=status,
+            sort=sort,
+            limit=limit,
+            exchange=self.exchange,
+        )
+
+    def fetchUserTrades(
+        self,
+        user_address: str,
+        market_id: str | None = None,
+        sort: str | None = None,
+        limit: int = 20,
+    ):
+        return fetchUserTrades(
+            user_address,
+            market_id=market_id,
+            sort=sort,
+            limit=limit,
+            exchange=self.exchange,
+        )
+
+    def fetchUserActivity(
+        self,
+        user_address: str,
+        type: str | None = None,
+        market_id: str | None = None,
+        limit: int = 20,
+    ):
+        return fetchUserActivity(
+            user_address,
+            type=type,
+            market_id=market_id,
+            limit=limit,
+            exchange=self.exchange,
+        )
+
+    def fetchUserPnL(self, user_address: str, window: str = "all"):
+        return fetchUserPnL(user_address, window=window, exchange=self.exchange)
+
+    def fetchUserRank(
+        self,
+        user_address: str,
+        window: str = "all",
+        by: str = "profit",
+    ):
+        return fetchUserRank(user_address, window=window, by=by, exchange=self.exchange)
+
+    def fetchUsersLeaderboard(
+        self,
+        limit: int = 20,
+        window: str = "all",
+        by: str = "profit",
+    ):
+        return fetchUsersLeaderboard(limit=limit, window=window, by=by, exchange=self.exchange)
+
+    def fetchUserMarkets(
+        self,
+        user_address: str,
+        status: str | None = None,
+        limit: int = 20,
+    ):
+        return fetchUserMarkets(user_address, status=status, limit=limit, exchange=self.exchange)
+
+    def fetchUserPortfolioValue(self, user_address: str):
+        return fetchUserPortfolioValue(user_address, exchange=self.exchange)
+
+    def fetchUserFollowers(self, user_address: str, limit: int = 20):
+        return fetchUserFollowers(user_address, limit=limit, exchange=self.exchange)
+
+    def fetchUserFollowing(self, user_address: str, limit: int = 20):
+        return fetchUserFollowing(user_address, limit=limit, exchange=self.exchange)
+
+    def findUserStyle(self, user_address: str, **kwargs: Any):
+        return findUserStyle(user_address, exchange=self.exchange, **kwargs)
+
+    # ── Historical ────────────────────────────────────────────────────────
+
+    def fetchHistoricalMarketPrice(self, market_id: str, **kwargs: Any):
+        return fetchHistoricalMarketPrice(market_id, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalMarketPriceOhlcv(self, market_id: str, **kwargs: Any):
+        return fetchHistoricalMarketPriceOhlcv(market_id, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalMarketVolume(self, market_id: str, **kwargs: Any):
+        return fetchHistoricalMarketVolume(market_id, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalMarketTrades(self, market_id: str, **kwargs: Any):
+        return fetchHistoricalMarketTrades(market_id, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalMarketOpenInterest(self, market_id: str, **kwargs: Any):
+        return fetchHistoricalMarketOpenInterest(market_id, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalEventPrice(self, event_id: str, **kwargs: Any):
+        return fetchHistoricalEventPrice(event_id, exchange=self.exchange, **kwargs)
+
+    def fetchHistorical(self, id: str, **kwargs: Any):
+        return fetchHistorical(id, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalUserTradeHistory(self, user_address: str, **kwargs: Any):
+        return fetchHistoricalUserTradeHistory(user_address, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalUserPnl(self, user_address: str, **kwargs: Any):
+        return fetchHistoricalUserPnl(user_address, exchange=self.exchange, **kwargs)
+
+    def fetchHistoricalUserWalletConnections(self, user_address: str, **kwargs: Any):
+        return fetchHistoricalUserWalletConnections(user_address, exchange=self.exchange, **kwargs)
+
+    # ── Feed ──────────────────────────────────────────────────────────────
+
+    def watchTrades(
+        self,
+        outcome_id: str,
+        *,
+        address: str | None = None,
+        since: int | None = None,
+        limit: int | None = None,
+        timeout: float = 30,
+    ):
+        return watchTrades(
+            outcome_id,
+            exchange=self.exchange,
+            address=address,
+            since=since,
+            limit=limit,
+            timeout=timeout,
+        )
+
+    def firehose(self, *, venues: list[str] | None = None):
+        return firehose(exchange=self.exchange, venues=venues)
+
+    def watchOrderBook(
+        self,
+        outcome_id: str,
+        *,
+        limit: int | None = None,
+        params: dict[str, Any] | None = None,
+    ):
+        return watchOrderBook(outcome_id, exchange=self.exchange, limit=limit, params=params)
+
+    def watchOrderBooks(
+        self,
+        outcome_ids: list[str],
+        *,
+        limit: int | None = None,
+        params: dict[str, Any] | None = None,
+    ):
+        return watchOrderBooks(outcome_ids, exchange=self.exchange, limit=limit, params=params)
+
+    def watchAllOrderBooks(self, *, venues: list[str] | None = None):
+        return watchAllOrderBooks(exchange=self.exchange, venues=venues)
+
+    def unwatchOrderBook(self, outcome_id: str):
+        return unwatchOrderBook(outcome_id, exchange=self.exchange)
+
+    def watchAddress(self, address: str, *, types: list[str] | None = None):
+        return watchAddress(address, exchange=self.exchange, types=types)
+
+    def unwatchAddress(self, address: str):
+        return unwatchAddress(address, exchange=self.exchange)
+
+    def watchUserPositions(
+        self,
+        *,
+        wallet_address: str | None = None,
+        callback: Callable[[dict[str, Any]], None] | None = None,
+    ):
+        return watchUserPositions(
+            exchange=self.exchange,
+            wallet_address=wallet_address or self._wallet_address,
+            callback=callback,
+        )
+
+    def watchUserTransactions(
+        self,
+        *,
+        wallet_address: str | None = None,
+        callback: Callable[[dict[str, Any]], None] | None = None,
+    ):
+        return watchUserTransactions(
+            exchange=self.exchange,
+            wallet_address=wallet_address or self._wallet_address,
+            callback=callback,
+        )
+
+    def watchPrices(
+        self,
+        market_address: str,
+        *,
+        callback: Callable[[dict[str, Any]], None] | None = None,
+    ):
+        return watchPrices(market_address, exchange=self.exchange, callback=callback)
+
+    # ── Platform ──────────────────────────────────────────────────────────
+
+    def fetchPlatformStats(self, **kwargs: Any):
+        return fetchPlatformStats(exchange=self.exchange, **kwargs)
+
+    def fetchPlatformFees(self, **kwargs: Any):
+        return fetchPlatformFees(exchange=self.exchange, **kwargs)
+
+    def fetchPlatformCategories(self, **kwargs: Any):
+        return fetchPlatformCategories(exchange=self.exchange, **kwargs)
+
+    def fetchPlatformStatus(self, **kwargs: Any):
+        return fetchPlatformStatus(exchange=self.exchange, **kwargs)
+
+    def fetchPlatformVenues(self, **kwargs: Any):
+        return fetchPlatformVenues(exchange=self.exchange, **kwargs)
